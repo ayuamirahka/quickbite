@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#3a251d">
+  <meta name="description" content="QuickBite point of sale — aplikasi kasir dan checkout. Untuk demonstrasi pembayaran simulasi.">
+  <title>QuickBite — Point of Sale</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Navigasi utama">
+      <a class="brand" href="#top" aria-label="QuickBite beranda">
+        <span class="brand-icon" aria-hidden="true">qb<span>.</span></span>
+        <span class="brand-text"><strong>QuickBite</strong><small>POINT OF SALE</small></span>
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <p class="sidebar-caption">WORKSPACE</p>
+      <nav class="sidebar-nav">
+        <a class="nav-link active" href="#posSection" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">▦</span><span>Kasir</span><span class="nav-active-dot"></span>
+        </a>
+        <a class="nav-link" href="#cancelSection">
+          <span class="nav-icon" aria-hidden="true">↺</span><span>Kelola pesanan</span>
+        </a>
+        <a class="nav-link" href="#receiptCard">
+          <span class="nav-icon" aria-hidden="true">▤</span><span>Struk terakhir</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note">
+        <span class="sidebar-note-icon" aria-hidden="true">✳</span>
+        <div><strong>Selamat bertugas!</strong><p>Layani dengan cepat, sajikan dengan hangat.</p></div>
+      </div>
+      <div class="sidebar-bottom">
+        <span class="avatar">QB</span>
+        <div class="user-copy"><strong>Kasir QuickBite</strong><small>Mode demonstrasi</small></div>
+        <span class="online-mini" title="Status server" aria-hidden="true"></span>
+      </div>
+    </aside>
+
+    <main class="app-main" id="top">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Workspace</span><span class="breadcrumb-slash">/</span><strong>Kasir</strong></div>
+        <div class="topbar-right">
+          <div class="connection-state" id="connectionState" role="status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="connectionText">Menghubungkan ke server…</span>
+          </div>
+          <span class="topbar-divider"></span>
+          <div class="date-chip"><span aria-hidden="true">◷</span><span id="currentDate">Hari ini</span></div>
+        </div>
+      </header>
+
+      <div class="content-shell">
+        <section class="welcome-row">
+          <div class="welcome-copy">
+            <p class="eyebrow"><span class="eyebrow-line"></span> QUICKBITE · SISTEM KASIR</p>
+            <h1>Halo, selamat datang! <span class="welcome-sparkle" aria-hidden="true">✦</span></h1>
+            <p class="welcome-description">Mulai pesanan baru, pilih menu favorit, dan selesaikan transaksi dalam beberapa langkah.</p>
+          </div>
+          <button type="button" class="button button-outline refresh-button" id="refreshMenusButton">
+            <span class="button-symbol" aria-hidden="true">↻</span> Segarkan menu
+          </button>
+        </section>
+
+        <div class="notice" id="globalNotice" role="status" aria-live="polite" hidden></div>
+
+        <section class="stats-grid" aria-label="Ringkasan operasional">
+          <article class="stat-card">
+            <span class="stat-icon stat-icon-coffee" aria-hidden="true">☕</span>
+            <div class="stat-copy"><span>Menu tersedia</span><strong id="statMenuCount">—</strong><small>Item dalam katalog</small></div>
+            <span class="stat-mark" aria-hidden="true">↗</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon stat-icon-cart" aria-hidden="true">▣</span>
+            <div class="stat-copy"><span>Item di keranjang</span><strong id="statCartCount">0</strong><small id="statCartHint">Siap menerima pesanan</small></div>
+            <span class="stat-mark stat-mark-neutral" aria-hidden="true">＋</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon stat-icon-stock" aria-hidden="true">◉</span>
+            <div class="stat-copy"><span>Total stok tercatat</span><strong id="statStockCount">—</strong><small>Unit menu di inventori</small></div>
+            <span class="stat-mark stat-mark-neutral" aria-hidden="true">⌁</span>
+          </article>
+        </section>
+
+        <section class="workspace" id="posSection">
+          <section class="panel menu-panel" aria-labelledby="menuHeading">
+            <div class="panel-heading menu-heading">
+              <div>
+                <p class="section-kicker">KATALOG PRODUK</p>
+                <h2 id="menuHeading">Pilih menu</h2>
+                <p class="panel-subtitle">Pilih produk untuk menambahkannya ke pesanan.</p>
+              </div>
+              <span class="count-pill" id="menuCount">Memuat menu…</span>
+            </div>
+
+            <div class="menu-toolbar">
+              <label class="search-box" for="menuSearch">
+                <span aria-hidden="true">⌕</span>
+                <input id="menuSearch" type="search" placeholder="Cari nama menu…" autocomplete="off" aria-label="Cari menu">
+                <kbd>Ctrl K</kbd>
+              </label>
+              <span class="availability-label"><span class="availability-dot"></span> Menu aktif</span>
+            </div>
+
+            <div class="menu-grid" id="menuGrid" aria-live="polite">
+              <div class="loading-card"><span class="loader"></span><span>Sedang mengambil daftar menu…</span></div>
+            </div>
+            <div class="catalog-footnote"><span aria-hidden="true">ⓘ</span> Harga dan stok ditampilkan berdasarkan data dari server.</div>
+          </section>
+
+          <aside class="panel order-panel" aria-labelledby="checkoutHeading">
+            <div class="order-top">
+              <div>
+                <p class="section-kicker">TRANSAKSI BARU</p>
+                <h2 id="checkoutHeading">Pesanan Anda</h2>
+              </div>
+              <span class="order-bag" aria-hidden="true">▤</span>
+            </div>
+            <div class="order-meta"><span class="order-live-dot"></span> ORDER AKTIF <span class="order-meta-spacer"></span><span id="cartItemTypes">0 produk</span></div>
+
+            <div class="cart-list" id="cartItems" aria-live="polite">
+              <div class="empty-cart">
+                <span class="empty-cart-art" aria-hidden="true">☕</span>
+                <strong>Keranjang masih kosong</strong>
+                <p>Produk pilihanmu akan muncul di sini.</p>
+              </div>
+            </div>
+
+            <div class="cart-summary">
+              <div class="summary-row"><span>Jumlah item</span><strong id="cartQuantity">0 item</strong></div>
+              <div class="summary-row"><span>Subtotal</span><strong id="cartSubtotal">Rp0</strong></div>
+              <div class="summary-row summary-total"><span>Total pembayaran</span><strong id="cartTotal">Rp0</strong></div>
+              <p class="summary-note"><span aria-hidden="true">✓</span> Total dihitung otomatis dari menu yang dipilih.</p>
+            </div>
+
+            <form id="checkoutForm" class="checkout-form">
+              <div class="form-heading"><span class="form-step">01</span><div><strong>Detail pembayaran</strong><small>Lengkapi sebelum checkout</small></div></div>
+              <div class="form-stack">
+                <label for="customerId">ID pelanggan</label>
+                <div class="input-wrap"><span class="input-icon" aria-hidden="true">♙</span><input id="customerId" name="idPelanggan" type="text" value="CUST-001" required autocomplete="off" placeholder="Contoh: CUST-001"></div>
+              </div>
+              <div class="form-stack">
+                <label for="paymentMethod">Metode pembayaran</label>
+                <div class="input-wrap select-wrap"><span class="input-icon" aria-hidden="true">▣</span><select id="paymentMethod" name="metodePembayaran" required><option value="Kartu">Kartu (simulasi)</option><option value="QRIS">QRIS (simulasi)</option><option value="Transfer">Transfer (simulasi)</option></select></div>
+              </div>
+              <div class="form-stack">
+                <label for="paymentToken">Token pembayaran</label>
+                <div class="input-wrap"><span class="input-icon" aria-hidden="true">⌑</span><input id="paymentToken" name="tokenKartu" type="text" value="valid_card" required autocomplete="off" placeholder="Token simulasi"></div>
+                <p class="field-help">Gunakan <code>valid_card</code> untuk simulasi berhasil.</p>
+              </div>
+              <button class="button button-primary checkout-button" id="checkoutButton" type="submit" disabled><span>Proses checkout</span><span class="button-arrow" aria-hidden="true">→</span></button>
+              <p class="secure-note"><span aria-hidden="true">♢</span> Mode demo — tidak ada uang sungguhan yang diproses.</p>
+            </form>
+
+            <section class="receipt-card" id="receiptCard" aria-labelledby="receiptHeading" hidden>
+              <div class="receipt-topline"></div>
+              <div class="receipt-header">
+                <span class="receipt-check" aria-hidden="true">✓</span>
+                <p class="section-kicker">TRANSAKSI BERHASIL</p>
+                <h3 id="receiptHeading">Struk digital</h3>
+                <p class="receipt-caption">Terima kasih telah bertransaksi di QuickBite.</p>
+              </div>
+              <dl class="receipt-details">
+                <div><dt>ID Pesanan</dt><dd id="receiptOrderId">—</dd></div>
+                <div><dt>ID Pembayaran</dt><dd id="receiptPaymentId">—</dd></div>
+                <div><dt>Total</dt><dd id="receiptTotal">—</dd></div>
+                <div><dt>Status pesanan</dt><dd><span class="status-badge" id="receiptOrderStatus">—</span></dd></div>
+                <div><dt>Status pembayaran</dt><dd id="receiptPaymentStatus">—</dd></div>
+                <div><dt>Kode referensi</dt><dd id="receiptReference">—</dd></div>
+                <div><dt>Waktu transaksi</dt><dd id="receiptDate">—</dd></div>
+              </dl>
+              <button type="button" class="button button-outline full-width" id="printReceiptButton"><span aria-hidden="true">▤</span> Cetak / simpan struk</button>
+            </section>
+          </aside>
+        </section>
+
+        <section class="panel cancel-panel" id="cancelSection" aria-labelledby="cancelHeading">
+          <div class="cancel-icon" aria-hidden="true">↺</div>
+          <div class="cancel-intro">
+            <p class="section-kicker">KELOLA TRANSAKSI</p>
+            <h2 id="cancelHeading">Pembatalan pesanan</h2>
+            <p>Masukkan ID pesanan untuk mengajukan pembatalan. Pesanan yang sudah dikirim atau selesai tidak bisa dibatalkan.</p>
+          </div>
+          <form id="cancelForm" class="cancel-form">
+            <div class="form-stack"><label for="cancelOrderId">ID pesanan</label><input id="cancelOrderId" name="idPesanan" type="text" placeholder="ORD-XXXXXXXX" required autocomplete="off"></div>
+            <div class="form-stack"><label for="cancelReason">Alasan pembatalan</label><input id="cancelReason" name="alasan" type="text" value="Pembatalan melalui halaman kasir" required maxlength="250"></div>
+            <button type="submit" class="button button-danger" id="cancelButton"><span aria-hidden="true">↺</span> Batalkan pesanan</button>
+          </form>
+        </section>
+
+        <footer class="page-footer">
+          <span><span class="footer-mark">qb.</span> QuickBite <span class="footer-separator">·</span> Point of Sale</span>
+          <span class="footer-right"><span class="footer-dot"></span> Backend Spring Boot <span class="footer-separator">·</span> MySQL/MariaDB</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
